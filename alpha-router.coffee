@@ -6,7 +6,7 @@ space_build_n = (path, parent, depth) ->
       depth: depth
       _s_n: "path"
     )
-    DATA.find(_s_n: "_spa", _spa: {$in: path.path_gr}).forEach (doc) ->
+    DATA.find(_s_n: "_spa", _spa: {$in: path.path_spa_arr}).forEach (doc) ->
       if LDATA.find(_spa: doc._spa, _pid: path_id, _s_n: "_spa").count() < 1
         spa = space_bud(
           doc
@@ -21,32 +21,6 @@ space_build_n = (path, parent, depth) ->
     return path_id
   return false
 
-space_build = (path, parent, depth) ->
-  if path and parent
-    group = LDATA.insert(
-      path: path.path_n
-      _mid: parent
-      depth: depth
-      _s_n: "path"
-    )
-    n = 0
-    while n < path.path_spa.length
-      if LDATA.find(_spa: path.path_spa[n]._spa, _pid: group).count() < 1
-        spa = space_bud(
-          path.path_spa[n].path_gr
-          path.path_spa[n]._spa
-          group
-          depth
-        )
-        Session.set("#{group}#{path.path_spa[n]._spa}", spa)
-      else
-        dgr = LDATA.findOne(_spa: path.path_spa[n]._spa, _pid: group)
-        unless Session.equals("#{group}#{path.path_spa[n]._spa}", dgr._id)
-          Session.set("#{group}#{path.path_spa[n]._spa}", dgr._id)
-      n++
-    return group
-  return false
-
 space_bud = (_spa, parent, depth) ->
   spa = LDATA.insert(
     _spa: _spa._spa
@@ -56,7 +30,7 @@ space_bud = (_spa, parent, depth) ->
     _s_n: "_spa"
   )
   k = 0
-  arr = _spa._spa_gr
+  arr = _spa._spa_gr_arr
   while k < arr.length
     gr = LDATA.insert(
       _gr: arr[k]
@@ -218,7 +192,7 @@ t_build_s = (_s_n, parent, gid, key) ->
 
 set_path_n = (path) ->
   b = path.split('/')
-  b.shift()
+  b[0] = "blank"
   n = 0
   par = "top"
   cur = "current_session"
@@ -233,29 +207,6 @@ set_path_n = (path) ->
         par = dgr._id
       else
         gr = space_build_n(gma, par, n)
-        par = gr
-        Session.set(cur, gr)
-        cur = "#{gr}_path"
-    n++
-  Session.set(cur, false)
-  return
-
-set_path = (path) ->
-  b = path.split('/')
-  b.shift()
-  n = 0
-  par = "top"
-  cur = "current_session"
-  while n < b.length
-    gma = DATA.findOne(_s_n: "_spa", path_dis: b[n])
-    if gma
-      dgr = LDATA.findOne(path: gma.path_n, _mid: par)
-      if dgr
-        unless Session.equals(cur, dgr._id)
-          Session.set(cur, dgr._id)
-        cur = "#{dgr._id}_path"
-      else
-        gr = space_build(gma, par, n)
         par = gr
         Session.set(cur, gr)
         cur = "#{gr}_path"
