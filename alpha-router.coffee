@@ -8,10 +8,12 @@ space_build_n = (path, parent, depth) ->
     )
     DATA.find(_s_n: "_spa", _spa: {$in: path.path_spa_arr}).forEach (doc) ->
       if LDATA.find(_spa: doc._spa, _pid: path_id, _s_n: "_spa").count() < 1
+        ind = path.path_spa_arr.indexOf(doc._spa)
         spa = space_bud(
           doc
           path_id
           depth
+          ind
         )
         Session.set("#{path_id}#{doc._spa_tem}", spa)
       else
@@ -21,58 +23,60 @@ space_build_n = (path, parent, depth) ->
     return path_id
   return false
 
-space_bud = (_spa, parent, depth) ->
+space_bud = (_spa, parent, depth, spa_sort) ->
   spa = LDATA.insert(
     _spa: _spa._spa
     _pid: parent
     depth: depth
+    sort: spa_sort
     _spa_tem: _spa._spa_tem
     _s_n: "_spa"
   )
   k = 0
-  arr = _spa._spa_gr_arr
-  while k < arr.length
-    gr = LDATA.insert(
-      _gr: arr[k]
-      _sid: spa
-      sort: k
-      depth: depth
-      _pid: parent
-      _s_n: "_gr"
-    )
-    obj = {}
-    pa = "_tri_grs.#{arr[k]}"
-    obj[pa] = {$exists: true}
-    obj._s_n = "_tri"
-    DATA.find(obj).forEach (doc) ->
-      ld = {}
-      ld._did = doc._id
-      ld.depth = depth
-      if doc._tri_grs[arr[k]].sort?
-        ld.sort = doc._tri_grs[arr[k]].sort
-      ld._gid = gr
-      ld._sid = spa
-      ld._pid = parent
-      ld._s_n = "doc"
-      console.log doc
-      id = LDATA.insert(ld)
-      if doc._tri_ty is "input" and doc.key_ty and doc.key_ty is "r_st"
-        dgr = LDATA.findOne(_gr: "_sel_opt", _sid: id)
-        unless dgr
-          cdr = space_bud_d(
-            doc.key_s
-            doc.key_key
-            "_sel_opt"
-            id
-            depth
-            spa
-            parent
-          )
-          Session.set("#{id}_sel_opt", cdr)
-        else
-          unless Session.equals("#{id}_sel_opt", dgr._id)
-            Session.set("#{id}_sel_opt", dgr._id)
-    k++
+  if _spa._spa_gr_arr
+    arr = _spa._spa_gr_arr
+    while k < arr.length
+      gr = LDATA.insert(
+        _gr: arr[k]
+        _sid: spa
+        sort: k
+        depth: depth
+        _pid: parent
+        _s_n: "_gr"
+      )
+      obj = {}
+      pa = "_tri_grs.#{arr[k]}"
+      obj[pa] = {$exists: true}
+      obj._s_n = "_tri"
+      DATA.find(obj).forEach (doc) ->
+        ld = {}
+        ld._did = doc._id
+        ld.depth = depth
+        if doc._tri_grs[arr[k]].sort?
+          ld.sort = doc._tri_grs[arr[k]].sort
+        ld._gid = gr
+        ld._sid = spa
+        ld._pid = parent
+        ld._s_n = "doc"
+        console.log doc
+        id = LDATA.insert(ld)
+        if doc._tri_ty is "input" and doc.key_ty and doc.key_ty is "r_st"
+          dgr = LDATA.findOne(_gr: "_sel_opt", _sid: id)
+          unless dgr
+            cdr = space_bud_d(
+              doc.key_s
+              doc.key_key
+              "_sel_opt"
+              id
+              depth
+              spa
+              parent
+            )
+            Session.set("#{id}_sel_opt", cdr)
+          else
+            unless Session.equals("#{id}_sel_opt", dgr._id)
+              Session.set("#{id}_sel_opt", dgr._id)
+      k++
   return spa
 
 @space_bud_d = (_s_n, key, name, parent, depth, spa, pid) ->
@@ -101,76 +105,6 @@ space_bud = (_spa, parent, depth) ->
         Session.set("#{parent}_v", doc[key])
       one = false
   return gr
-
-t_build = (path, parent) ->
-  if path
-    par = parent or "top"
-    pa = "_tri_grs.#{path}"
-    obj = {}
-    obj[pa] = {$exists: true}
-    obj._s_n = "_tri"
-    if DATA.find(obj).count() >= 1
-      group = LDATA.insert(_spa: path, _mid: par)
-      DATA.find(obj).forEach (doc) ->
-        ld = {}
-        ld._did = doc._id
-        if doc._tri_grs[path].sort?
-          ld.sort = doc._tri_grs[path].sort
-        ld._gid = group
-        console.log doc
-        id = LDATA.insert(ld)
-        if doc.key_ty and doc.key_ty is "r_st"
-          dgr = LDATA.findOne(_spa: "sel_opt", _mid: id)
-          if dgr
-            unless Session.equals("#{id}_sel_opt", dgr._id)
-              Session.set("#{id}_sel_opt", dgr._id)
-          else
-            sel_gr = t_build_s(doc.key_s, id, "sel_opt", doc.key_key)
-            Session.set("#{id}_sel_opt", sel_gr)
-          if doc.on_select
-            switch doc.on_select
-              when "write_form_btn"
-                res = Session.get("#{id}_v")
-                if res
-                  oj = {}
-                  oj[doc.key_key] = res
-                  oj._s_n = doc.key_s
-                  sel = DATA.findOne(oj)
-                  if sel
-                    n = 0
-                    while n < sel.input_form_gr.length
-                      on_sel_gr = LDATA.findOne(
-                        _mid: group
-                        _lpa: sel.input_form_gr[n]._gr_n
-                      )
-                      if on_sel_gr
-                        unless Session.equals("#{group}#{sel.input_form_gr[n]._gr_n}", on_sel_gr._id)
-                          Session.set("#{group}#{sel.input_form_gr[n]._gr_n}", on_sel_gr._id)
-                      else
-                        if sel.input_form_gr[n].form_gr.length is 1
-                          gg = t_build(
-                            sel.input_form_gr[n].form_gr[0]
-                            group
-                            sel.input_form_gr[n]._gr_n
-                          )
-                          Session.set("#{group}#{sel.input_form_gr[n]._gr_n}", gg)
-                        else if sel.input_form_gr[n].form_gr.length > 1
-                          k = 0
-                          gem = LDATA.insert(
-                            _spa: sel.input_form_gr[n]._gr_n
-                            _mid: group
-                            _lpa: sel.input_form_gr[n]._gr_n
-                          )
-                          while k < sel.input_form_gr[n].form_gr.length
-                            gg = t_build(
-                              sel.input_form_gr[n].form_gr[k]
-                              gem
-                            )
-                            k++
-                          Session.set("#{group}#{sel.input_form_gr[n]._gr_n}", gem)
-                      n++
-      return group
-  return false
 
 t_build_s = (_s_n, parent, gid, key) ->
   if _s_n and parent
