@@ -124,6 +124,8 @@ t_build_s = (_s_n, parent, gid, key) ->
     return group
   return false
 
+ses.current_path = new Blaze.reactiveVar()
+
 set_path_n = (path) ->
   b = path.split('/')
   b[0] = "blank"
