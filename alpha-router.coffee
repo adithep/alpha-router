@@ -1,83 +1,68 @@
 space_build_n = (path, parent, depth) ->
   if path and parent
     path_id = LDATA.insert(
-      path: path.path_n
+      path_n: path.path_n
       _mid: parent
       depth: depth
-      _s_n: "path"
+      _s_n: "paths"
     )
-    DATA.find(_s_n: "_spa", _spa: {$in: path.path_spa_arr}).forEach (doc) ->
-      if LDATA.find(_spa: doc._spa, _pid: path_id, _s_n: "_spa").count() < 1
-        ind = path.path_spa_arr.indexOf(doc._spa)
-        spa = space_bud(
-          doc
-          path_id
-          depth
-          ind
-        )
-        Session.set("#{path_id}#{doc._spa_tem}", spa)
-      else
-        dgr = LDATA.findOne(_spa: doc._spa, _pid: path_id, _s_n: "_spa")
-        unless Session.equals("#{path_id}#{doc._spa_tem}", dgr._id)
-          Session.set("#{path_id}#{doc._spa_tem}", dgr._id)
+    if path.path_ctl_arr and Array.isArray(path.path_ctl_arr)
+      DATA.find(_s_n: "_ctl", _ctl_n: {$in: path.path_ctl_arr}).forEach (doc) ->
+        if LDATA.find(_ctl_n: doc._ctl_n, _pid: path_id, _s_n: "_ctl").count() < 1
+
+          ind = path.path_ctl_arr.indexOf(doc._ctl_n)
+          _ctl = space_bud(
+            doc
+            path_id
+            depth
+            ind
+          )
+          Session.set("#{path_id}#{doc._ctl_n}", _ctl)
+        else
+          dgr = LDATA.findOne(_ctl_n: doc._ctl_n, _pid: path_id, _s_n: "_ctl")
+          unless Session.equals("#{path_id}#{doc._ctl_n}", dgr._id)
+            Session.set("#{path_id}#{doc._ctl_n}", dgr._id)
     return path_id
   return false
 
-space_bud = (_spa, parent, depth, spa_sort) ->
-  spa = LDATA.insert(
-    _spa: _spa._spa
+space_bud = (_ctl, parent, depth, ctl_sort) ->
+  ctl = LDATA.insert(
+    _ctl_n: _ctl._ctl_n
     _pid: parent
     depth: depth
-    sort: spa_sort
-    _spa_tem: _spa._spa_tem
-    _s_n: "_spa"
+    sort: ctl_sort
+    _ctl_id: _ctl._id
+    _s_n: "_ctl"
   )
-  k = 0
-  if _spa._spa_gr_arr
-    arr = _spa._spa_gr_arr
-    while k < arr.length
-      gr = LDATA.insert(
-        _gr: arr[k]
-        _sid: spa
-        sort: k
-        depth: depth
-        _pid: parent
-        _s_n: "_gr"
-      )
-      obj = {}
-      pa = "_tri_grs.#{arr[k]}"
-      obj[pa] = {$exists: true}
-      obj._s_n = "_tri"
-      DATA.find(obj).forEach (doc) ->
-        ld = {}
-        ld._did = doc._id
-        ld.depth = depth
-        if doc._tri_grs[arr[k]].sort?
-          ld.sort = doc._tri_grs[arr[k]].sort
-        ld._gid = gr
-        ld._sid = spa
-        ld._pid = parent
-        ld._s_n = "doc"
-        console.log doc
-        id = LDATA.insert(ld)
-        if doc._tri_ty is "input" and doc.key_ty and doc.key_ty is "r_st"
-          dgr = LDATA.findOne(_gr: "_sel_opt", _sid: id)
-          unless dgr
-            cdr = space_bud_d(
-              doc.key_s
-              doc.key_key
-              "_sel_opt"
-              id
-              depth
-              spa
-              parent
-            )
-            Session.set("#{id}_sel_opt", cdr)
-          else
-            unless Session.equals("#{id}_sel_opt", dgr._id)
-              Session.set("#{id}_sel_opt", dgr._id)
-      k++
-  return spa
+  depth++
+  if _ctl.data
+    obj = EJSON.parse(_ctl.data)
+    n = 0
+    DATA.find(obj).forEach (doc) ->
+      if _ctl.data.data_sort_key and _ctl.data.data_sort_arr
+        sort = _ctl.data.data_sort_arr.indexOf(doc[_ctl.data.data_sort_key])
+      else
+        sort = n++
+      switch doc._s_n
+        when "_ctl"
+          space_bud(doc, ctl, depth, sort)
+        else
+          data = LDATA.insert(
+            _cid: ctl
+            depth: depth
+            sort: sort
+            _did: doc._id
+            _s_n: "data"
+          )
+  if _ctl.data_func
+    data_func = LDATA.insert(
+      _cid: ctl
+      depth: depth
+      _fid: _ctl.data_func
+      _s_n: "data"
+    )
+
+  return ctl
 
 @space_bud_d = (_s_n, key, name, parent, depth, spa, pid) ->
   gr = LDATA.insert(
@@ -124,7 +109,8 @@ t_build_s = (_s_n, parent, gid, key) ->
     return group
   return false
 
-ses.current_path = new Blaze.reactiveVar()
+ses.current_path = new Blaze.ReactiveVar()
+ses.current_session = new Blaze.ReactiveVar()
 
 set_path_n = (path) ->
   b = path.split('/')
@@ -135,7 +121,7 @@ set_path_n = (path) ->
   while n < b.length
     gma = DATA.findOne(_s_n: "paths", path_n: b[n])
     if gma
-      dgr = LDATA.findOne(path: gma.path_n, _mid: par, _s_n: "path")
+      dgr = LDATA.findOne(path_n: gma.path_n, _mid: par, _s_n: "paths")
       if dgr
         unless Session.equals(cur, dgr._id)
           Session.set(cur, dgr._id)
@@ -151,7 +137,10 @@ set_path_n = (path) ->
   return
 
 Deps.autorun ->
-  if Session.equals("subscription", true)
+  if ses.subscription.get() is true
+    root = DATA.findOne(_s_n: "paths", path_n: "blank")
+    if root and root.path_dis
+      document.title = root.path_dis
     a = window.location.pathname
     set_path_n(a)
     Session.set("current_path", a)
