@@ -8,6 +8,7 @@ Package.on_use(function (api, where) {
   api.use([
     'bads:alpha-template',
     'bads:core-lib',
+    'reactive-dict',
     'coffeescript',
     'standard-app-packages'
   ]);
