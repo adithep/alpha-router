@@ -170,7 +170,7 @@
     ],
     [
       "templating",
-      "1.0.2"
+      "1.0.1"
     ],
     [
       "ui",
@@ -186,6 +186,6 @@
     ]
   ],
   "pluginDependencies": [],
-  "toolVersion": "meteor-tool@1.0.8",
+  "toolVersion": "meteor-tool@1.0.10",
   "format": "1.0"
 }
