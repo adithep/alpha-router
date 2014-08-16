@@ -10,7 +10,7 @@
     ],
     [
       "autoupdate",
-      "1.0.1"
+      "1.0.0"
     ],
     [
       "bads:alpha-stylus",
@@ -38,7 +38,7 @@
     ],
     [
       "blaze",
-      "1.0.1"
+      "1.0.0"
     ],
     [
       "blaze-tools",
@@ -94,7 +94,7 @@
     ],
     [
       "livedata",
-      "1.0.1"
+      "1.0.0"
     ],
     [
       "localstorage",
@@ -102,7 +102,7 @@
     ],
     [
       "logging",
-      "1.0.0"
+      "1.0.1"
     ],
     [
       "meteor",
@@ -110,19 +110,19 @@
     ],
     [
       "minifiers",
-      "1.0.0"
+      "1.0.1"
     ],
     [
       "minimongo",
-      "1.0.1"
-    ],
-    [
-      "mongo-livedata",
       "1.0.0"
     ],
     [
-      "observe-sequence",
+      "mongo-livedata",
       "1.0.1"
+    ],
+    [
+      "observe-sequence",
+      "1.0.0"
     ],
     [
       "ordered-dict",
@@ -170,7 +170,7 @@
     ],
     [
       "templating",
-      "1.0.1"
+      "1.0.0"
     ],
     [
       "ui",
@@ -182,10 +182,10 @@
     ],
     [
       "webapp",
-      "1.0.0"
+      "1.0.1"
     ]
   ],
   "pluginDependencies": [],
-  "toolVersion": "meteor-tool@1.0.10",
+  "toolVersion": "meteor-tool@1.0.11",
   "format": "1.0"
 }

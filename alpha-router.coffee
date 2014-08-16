@@ -3,15 +3,6 @@ ses.current_path_arr = new Blaze.ReactiveVar()
 ses.path = new ReactiveDict()
 
 
-parse_root_path = ->
-  if ses.root and ses.root.paths
-    for key of ses.root.paths
-      if ses.root.paths[key].data
-        ses.root.paths[key].data = EJSON.parse(ses.root.paths[key].data)
-      if ses.root.paths[key].data_opt
-        ses.root.paths[key].data_opt = EJSON.parse(ses.root.paths[key].data_opt)
-
-
 Deps.autorun ->
   b = ses.current_path_arr.get()
   if b and b.length > 0
@@ -28,9 +19,9 @@ Deps.autorun ->
     root = DATA.findOne(_s_n: "apps")
     if root
       ses.root = root
-      if root.app_dis
-        document.title = root.app_dis
-      parse_root_path()
+      if ses.root.app_dis
+        document.title = ses.root.app_dis
+      ses.root.paths = EJSON.parse(ses.root.paths)
     a = window.location.pathname
     b = a.split("/")
     b[0] = "root"
