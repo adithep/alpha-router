@@ -21,7 +21,6 @@ Deps.autorun ->
       ses.root = root
       if ses.root.app_dis
         document.title = ses.root.app_dis
-      ses.root.paths = EJSON.parse(ses.root.paths)
     a = window.location.pathname
     b = a.split("/")
     b[0] = "root"
