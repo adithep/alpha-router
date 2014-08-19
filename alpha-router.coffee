@@ -1,6 +1,7 @@
 ses.current_path_n = new Blaze.ReactiveVar()
 ses.current_path_arr = new Blaze.ReactiveVar()
 ses.path = new ReactiveDict()
+ses.tem = new ReactiveDict()
 
 
 Deps.autorun ->
@@ -30,6 +31,12 @@ Deps.autorun ->
     ses.current_path_n.set(a)
     ses.current_path_arr.set(b)
     return
+
+Deps.autorun ->
+  if Session.equals("subscription", true)
+    DATA.find(_s_n: "templates").forEach (doc) ->
+      unless ses.tem.equals(doc.tem_ty_n, doc)
+        ses.tem.set(doc.tem_ty_n, doc)
 
 UI.body.events
   'click a[href^="/"]': (e, t) ->
