@@ -1,7 +1,7 @@
 ses.current_path_n = new Blaze.ReactiveVar()
 ses.current_path_arr = new Blaze.ReactiveVar()
 ses.path = new ReactiveDict()
-ses.tem = new ReactiveDict()
+ses.tem = {}
 
 
 Deps.autorun ->
@@ -22,6 +22,20 @@ Deps.autorun ->
       document.title = root.app_dis
     return
 
+Deps.autorun ->
+  DATA.find(_s_n: "templates").observe
+
+    added: (doc) ->
+
+      ses.tem[doc.tem_ty_n] = new Blaze.ReactiveVar(doc)
+
+    changed: (ndoc) ->
+      ses.tem[doc.tem_ty_n].set(ndoc)
+
+    removed: (doc) ->
+
+      delete ses.tem[doc.tem_ty_n]
+
 
 Deps.autorun ->
   if Session.equals("subscription", true)
@@ -32,11 +46,7 @@ Deps.autorun ->
     ses.current_path_arr.set(b)
     return
 
-Deps.autorun ->
-  if Session.equals("subscription", true)
-    DATA.find(_s_n: "templates").forEach (doc) ->
-      unless ses.tem.equals(doc.tem_ty_n, doc)
-        ses.tem.set(doc.tem_ty_n, doc)
+
 
 UI.body.events
   'click a[href^="/"]': (e, t) ->
