@@ -1,6 +1,7 @@
 Package.describe({
   summary: "Experimental Routing",
-  version: "0.0.1"
+  version: "0.0.1",
+  name: "bads:alpha-router"
 });
 
 Package.on_use(function (api, where) {
@@ -16,7 +17,7 @@ Package.on_use(function (api, where) {
 });
 
 Package.on_test(function (api) {
-  api.use("../packages/bads:alpha-router");
+  api.use("bads:alpha-router");
 
   api.add_files('alpha-router_tests.js', ['client', 'server']);
 });
