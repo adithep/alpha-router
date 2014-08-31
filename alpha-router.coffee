@@ -9,8 +9,12 @@ Deps.autorun ->
   if b and b.length > 0
     n = 0
     while n < b.length
-      unless ses.path.equals(n, b[n])
-        ses.path.set(n, b[n])
+      i = 0
+      while i < b[n].length
+        te = "#{n}:#{i}"
+        unless ses.path.equals(te, b[n][i])
+          ses.path.set(te, b[n][i])
+        i++
       n++
     ses.path.set(n, false)
   return
@@ -37,11 +41,32 @@ Deps.autorun ->
       delete ses.tem[doc.tem_ty_n]
 
 
+colon = (str) ->
+  b = str.split(":")
+  n = 0
+  while n < b.length
+    if b[n].indexOf("/") isnt -1
+      b[n] = slash(b[n])
+    n++
+  return b
+
+slash = (str) ->
+  b = str.split("/")
+  n = 0
+  while n < b.length
+    if b[n].indexOf(":") isnt -1
+      b[n] = colon(b[n])
+    n++
+  return b
+
+
 Deps.autorun ->
   if Session.equals("subscription", true)
     a = window.location.pathname
-    b = a.split("/")
-    b[0] = "root"
+    a = Mu.remove_first_last_slash(a)
+    b = colon(a)
+    b.splice(0, 0, "root")
+    console.log(b)
     ses.current_path_n.set(a)
     ses.current_path_arr.set(b)
     return
@@ -52,8 +77,13 @@ UI.body.events
   'click a[href^="/"]': (e, t) ->
     e.preventDefault()
     a = e.currentTarget.pathname
-    b = a.split("/")
-    b[0] = "root"
+    b = a.split(":")
+    n = 0
+    while n < b.length
+      c = b[n].split("/")
+      if n is 0
+        c[0] = "root"
+      b[n] = c
     window.history.pushState("","", a)
     ses.current_path_n.set(a)
     ses.current_path_arr.set(b)
