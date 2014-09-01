@@ -64,11 +64,26 @@ Deps.autorun ->
   if Session.equals("subscription", true)
     a = window.location.pathname
     a = Mu.remove_first_last_slash(a)
-    b = colon(a)
-    b.splice(0, 0, "root")
-    console.log(b)
-    ses.current_path_n.set(a)
-    ses.current_path_arr.set(b)
+    n = 0
+    i = 0
+    bct = 0
+    arr = []
+    while n < a.length
+      if a[n] is "("
+        bct++
+      else if a[n] is ")"
+        bct--
+      if a[n] is "/" and bct is 0
+        i++
+      else
+        if arr[i]
+          arr[i] = arr[i] + a[n]
+        else
+          arr[i] = a[n]
+      n++
+    console.log(arr)
+    #ses.current_path_n.set(a)
+    #ses.current_path_arr.set(b)
     return
 
 
