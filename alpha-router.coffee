@@ -60,6 +60,39 @@ slash = (str) ->
   return b
 
 
+bracket = (str) ->
+  n = 0
+  i = 0
+  bct = 0
+  bra = false
+  arr = []
+  while n < str.lenght
+
+    if str[n] is "("
+      unless bra is true
+        bra = true
+      bct++
+
+    else if str[n] is ")"
+      bct--
+
+    else if str[n] is ":" and bct is 0
+      i++
+
+    else
+
+      if arr[i]
+        arr[i] = arr[i] + a[n]
+      else
+        arr[i] = a[n]
+
+    if bct is 0 and bra is true
+      i++
+      bra = false
+
+    n++
+  return arr
+
 Deps.autorun ->
   if Session.equals("subscription", true)
     a = window.location.pathname
@@ -74,6 +107,12 @@ Deps.autorun ->
       else if a[n] is ")"
         bct--
       if a[n] is "/" and bct is 0
+
+        if /[():]/.test(a[i])
+          a[i] = bracket(a[i])
+        else
+          arr[i] = [arr[i]]
+
         i++
       else
         if arr[i]
