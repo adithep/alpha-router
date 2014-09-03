@@ -41,26 +41,39 @@ Deps.autorun ->
       delete ses.tem[doc.tem_ty_n]
 
 
-colon = (str) ->
-  b = str.split(":")
+
+slash = (str, pparr) ->
   n = 0
-  while n < b.length
-    if b[n].indexOf("/") isnt -1
-      b[n] = slash(b[n])
+  i = 0
+  bct = 0
+  parr = pparr or [0]
+  parr[parr.length] = 0
+  arr = []
+  while n < a.length
+    if a[n] is "("
+      bct++
+    else if a[n] is ")"
+      bct--
+    if a[n] is "/" and bct is 0
+
+      if /[():]/.test(a[i])
+        bracket(a[i], parr)
+      else
+        sarr = parr.join(":")
+        ses.path.set(sarr, arr[i])
+        parr[parr.length-2]++
+
+      i++
+    else
+      if arr[i]
+        arr[i] = arr[i] + a[n]
+      else
+        arr[i] = a[n]
     n++
-  return b
-
-slash = (str) ->
-  b = str.split("/")
-  n = 0
-  while n < b.length
-    if b[n].indexOf(":") isnt -1
-      b[n] = colon(b[n])
-    n++
-  return b
+  return
 
 
-bracket = (str) ->
+bracket = (str, parr) ->
   n = 0
   i = 0
   bct = 0
@@ -87,42 +100,25 @@ bracket = (str) ->
         arr[i] = a[n]
 
     if bct is 0 and bra is true
+      if /[():/]/.test(a[i])
+        slash(a[i], parr)
+      else
+        sarr = parr.join(":")
+        ses.path.set(sarr, arr[i])
+        parr[parr.length-1]++
       i++
       bra = false
 
     n++
-  return arr
+  return
 
 Deps.autorun ->
   if Session.equals("subscription", true)
     a = window.location.pathname
     a = Mu.remove_first_last_slash(a)
-    n = 0
-    i = 0
-    bct = 0
-    arr = []
-    while n < a.length
-      if a[n] is "("
-        bct++
-      else if a[n] is ")"
-        bct--
-      if a[n] is "/" and bct is 0
-
-        if /[():]/.test(a[i])
-          a[i] = bracket(a[i])
-        else
-          arr[i] = [arr[i]]
-
-        i++
-      else
-        if arr[i]
-          arr[i] = arr[i] + a[n]
-        else
-          arr[i] = a[n]
-      n++
-    console.log(arr)
-    #ses.current_path_n.set(a)
-    #ses.current_path_arr.set(b)
+    a = "root/#{a}"
+    slash(a)
+    ses.current_path_n.set(a)
     return
 
 
