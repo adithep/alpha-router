@@ -41,34 +41,55 @@ Deps.autorun ->
       delete ses.tem[doc.tem_ty_n]
 
 
-
 slash = (str, pparr) ->
   n = 0
   i = 0
   bct = 0
   parr = pparr or [0]
-  parr[parr.length] = 0
   arr = []
-  while n < a.length
-    if a[n] is "("
+  while n < str.length
+    if str[n] is "("
       bct++
-    else if a[n] is ")"
+      if arr[i]
+        if /[():]/.test(arr[i])
+          parr[parr.length] = 0
+          bracket(arr[i], EJSON.clone(parr))
+        else
+          sarr = parr.join(":")
+          console.log("matrix: #{sarr}, path: #{arr[i]}")
+          ses.path.set(sarr, arr[i])
+          parr[parr.length-1]++
+        i++
+    else if str[n] is ")"
       bct--
-    if a[n] is "/" and bct is 0
-
-      if /[():]/.test(a[i])
-        bracket(a[i], parr)
+    if str[n] is "/" and bct is 0
+      if /[():]/.test(arr[i])
+        parr[parr.length] = 0
+        bracket(arr[i], EJSON.clone(parr))
       else
         sarr = parr.join(":")
+        console.log("matrix: #{sarr}, path: #{arr[i]}")
         ses.path.set(sarr, arr[i])
-        parr[parr.length-2]++
+        parr[parr.length-1]++
+
 
       i++
+
     else
       if arr[i]
-        arr[i] = arr[i] + a[n]
+        arr[i] = arr[i] + str[n]
       else
-        arr[i] = a[n]
+        arr[i] = str[n]
+
+    if n is (str.length - 1) and arr[i]
+      if /[():]/.test(arr[i])
+        parr[parr.length] = 0
+        bracket(arr[i], EJSON.clone(parr))
+      else
+        sarr = parr.join(":")
+        console.log("matrix: #{sarr}, path: #{arr[i]}")
+        ses.path.set(sarr, arr[i])
+        parr[parr.length-1]++
     n++
   return
 
@@ -79,36 +100,60 @@ bracket = (str, parr) ->
   bct = 0
   bra = false
   arr = []
-  while n < str.lenght
+  while n < str.length
 
     if str[n] is "("
       unless bra is true
         bra = true
+        if arr[i]
+          if /[():/]/.test(arr[i])
+            slash(arr[i], EJSON.clone(parr))
+          else
+            sarr = parr.join(":")
+            console.log("matrix: #{sarr}, path: #{arr[i]}")
+            ses.path.set(sarr, arr[i])
+            parr[parr.length-1]++
+          i++
       bct++
 
     else if str[n] is ")"
       bct--
 
     else if str[n] is ":" and bct is 0
+      if /[():/]/.test(arr[i])
+        slash(arr[i], EJSON.clone(parr))
+      else
+        sarr = parr.join(":")
+        console.log("matrix: #{sarr}, path: #{arr[i]}")
+        ses.path.set(sarr, arr[i])
+        parr[parr.length-1]++
       i++
 
     else
 
       if arr[i]
-        arr[i] = arr[i] + a[n]
+        arr[i] = arr[i] + str[n]
       else
-        arr[i] = a[n]
+        arr[i] = str[n]
 
     if bct is 0 and bra is true
-      if /[():/]/.test(a[i])
-        slash(a[i], parr)
+      if /[():/]/.test(arr[i])
+        slash(arr[i], EJSON.clone(parr))
       else
         sarr = parr.join(":")
+        console.log("matrix: #{sarr}, path: #{arr[i]}")
         ses.path.set(sarr, arr[i])
         parr[parr.length-1]++
       i++
       bra = false
-
+    if n is (str.length - 1) and arr[i]
+      if /[():/]/.test(arr[i])
+        slash(arr[i], EJSON.clone(parr))
+      else
+        sarr = parr.join(":")
+        console.log("matrix: #{sarr}, path: #{arr[i]}")
+        ses.path.set(sarr, arr[i])
+        parr[parr.length-1]++
     n++
   return
 
