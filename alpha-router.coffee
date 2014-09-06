@@ -4,7 +4,7 @@ ses.path = new ReactiveDict()
 ses.tem = {}
 
 
-Deps.autorun ->
+Tracker.autorun ->
   b = ses.current_path_arr.get()
   if b and b.length > 0
     n = 0
@@ -19,14 +19,14 @@ Deps.autorun ->
     ses.path.set(n, false)
   return
 
-Deps.autorun ->
+Tracker.autorun ->
   if Session.equals("subscription", true)
     root = DATA.findOne(_s_n: "apps")
     if root and root.app_dis
       document.title = root.app_dis
     return
 
-Deps.autorun ->
+Tracker.autorun ->
   DATA.find(_s_n: "templates").observe
 
     added: (doc) ->
@@ -41,128 +41,82 @@ Deps.autorun ->
       delete ses.tem[doc.tem_ty_n]
 
 
-slash = (str, pparr) ->
+matrix = (str, pparr) ->
   n = 0
-  i = 0
   bct = 0
+  bru = false
+  sla = false
   parr = pparr or [0]
-  arr = []
+  nstr = ""
   while n < str.length
+    nstr = nstr + str[n]
     if str[n] is "("
+      ostr = nstr.replace(/\($/g, '')
+      if bct is 0
+        ostr = ostr.replace(/^\(|\)$/g, '')
+      if ostr.length >=1 and ostr.indexOf("(") is -1
+        ostr = ostr.replace(/^\(|\)$/g, '')
+        sarr = parr.join("")
+        ses.path.set(sarr, ostr)
+        parr[parr.length-1]++
+        nstr = ""
       bct++
-      if arr[i]
-        if /[():]/.test(arr[i])
-          parr[parr.length] = 0
-          bracket(arr[i], EJSON.clone(parr))
-        else
-          sarr = parr.join(":")
-          console.log("matrix: #{sarr}, path: #{arr[i]}")
-          ses.path.set(sarr, arr[i])
-          parr[parr.length-1]++
-        i++
     else if str[n] is ")"
       bct--
-    if str[n] is "/" and bct is 0
-      if /[():]/.test(arr[i])
-        parr[parr.length] = 0
-        bracket(arr[i], EJSON.clone(parr))
-      else
-        sarr = parr.join(":")
-        console.log("matrix: #{sarr}, path: #{arr[i]}")
-        ses.path.set(sarr, arr[i])
-        parr[parr.length-1]++
-
-
-      i++
-
+    if bct >= 2 or (bct is 1 and (str[n] is ":" or str[n] is "/" ))
+      bru = true
+    if str[n] is "/"
+      sla = true
     else
-      if arr[i]
-        arr[i] = arr[i] + str[n]
-      else
-        arr[i] = str[n]
+      sla = false
 
-    if n is (str.length - 1) and arr[i]
-      if /[():]/.test(arr[i])
+
+    if (str[n] is ":" and bct is 0)
+
+      nstr = nstr.replace(/^\/|\/$/g, '')
+      nstr = nstr.replace(/^\(|\)$|:$|^:/g, '')
+      if bru is true
+        carr = _.clone(parr)
+        matrix(nstr, carr)
+
         parr[parr.length] = 0
-        bracket(arr[i], EJSON.clone(parr))
-      else
-        sarr = parr.join(":")
-        console.log("matrix: #{sarr}, path: #{arr[i]}")
-        ses.path.set(sarr, arr[i])
         parr[parr.length-1]++
+      else
+        sarr = parr.join("")
+        ses.path.set(sarr, nstr)
+        parr[parr.length-1]++
+      bru = false
+      nstr = ""
+
+    if (str[n] is "/" and bct is 0) or (n is str.length - 1)
+
+      nstr = nstr.replace(/^\/|\/$/g, '')
+      nstr = nstr.replace(/^\(|\)$|:$|^:/g, '')
+      if bru is true
+        carr = _.clone(parr)
+        matrix(nstr, carr)
+
+        parr[parr.length] = 0
+        parr[parr.length-1]++
+      else
+        sarr = parr.join("")
+        ses.path.set(sarr, nstr)
+        parr[parr.length] = 0
+      bru = false
+      nstr = ""
+    if n is str.length - 1
+      sarr = parr.join("")
+      ses.path.set(sarr, false)
+
+
     n++
-  return
 
-
-bracket = (str, parr) ->
-  n = 0
-  i = 0
-  bct = 0
-  bra = false
-  arr = []
-  while n < str.length
-
-    if str[n] is "("
-      unless bra is true
-        bra = true
-        if arr[i]
-          if /[():/]/.test(arr[i])
-            slash(arr[i], EJSON.clone(parr))
-          else
-            sarr = parr.join(":")
-            console.log("matrix: #{sarr}, path: #{arr[i]}")
-            ses.path.set(sarr, arr[i])
-            parr[parr.length-1]++
-          i++
-      bct++
-
-    else if str[n] is ")"
-      bct--
-
-    else if str[n] is ":" and bct is 0
-      if /[():/]/.test(arr[i])
-        slash(arr[i], EJSON.clone(parr))
-      else
-        sarr = parr.join(":")
-        console.log("matrix: #{sarr}, path: #{arr[i]}")
-        ses.path.set(sarr, arr[i])
-        parr[parr.length-1]++
-      i++
-
-    else
-
-      if arr[i]
-        arr[i] = arr[i] + str[n]
-      else
-        arr[i] = str[n]
-
-    if bct is 0 and bra is true
-      if /[():/]/.test(arr[i])
-        slash(arr[i], EJSON.clone(parr))
-      else
-        sarr = parr.join(":")
-        console.log("matrix: #{sarr}, path: #{arr[i]}")
-        ses.path.set(sarr, arr[i])
-        parr[parr.length-1]++
-      i++
-      bra = false
-    if n is (str.length - 1) and arr[i]
-      if /[():/]/.test(arr[i])
-        slash(arr[i], EJSON.clone(parr))
-      else
-        sarr = parr.join(":")
-        console.log("matrix: #{sarr}, path: #{arr[i]}")
-        ses.path.set(sarr, arr[i])
-        parr[parr.length-1]++
-    n++
-  return
-
-Deps.autorun ->
+Tracker.autorun ->
   if Session.equals("subscription", true)
     a = window.location.pathname
-    a = Mu.remove_first_last_slash(a)
-    a = "root/#{a}"
-    slash(a)
+    b = Mu.remove_first_last_slash(a)
+    b = "root/#{b}"
+    matrix(b)
     ses.current_path_n.set(a)
     return
 
@@ -172,14 +126,9 @@ UI.body.events
   'click a[href^="/"]': (e, t) ->
     e.preventDefault()
     a = e.currentTarget.pathname
-    b = a.split(":")
-    n = 0
-    while n < b.length
-      c = b[n].split("/")
-      if n is 0
-        c[0] = "root"
-      b[n] = c
+    b = Mu.remove_first_last_slash(a)
+    b = "root/#{b}"
+    matrix(b)
     window.history.pushState("","", a)
     ses.current_path_n.set(a)
-    ses.current_path_arr.set(b)
     return

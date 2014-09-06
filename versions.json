@@ -2,15 +2,15 @@
   "dependencies": [
     [
       "accounts-base",
-      "1.0.0"
+      "1.1.0-rc0"
     ],
     [
       "application-configuration",
-      "1.0.0"
+      "1.0.2-rc0"
     ],
     [
       "autoupdate",
-      "1.0.5"
+      "1.0.7-cordova6"
     ],
     [
       "bads:alpha-stylus",
@@ -38,11 +38,15 @@
     ],
     [
       "blaze",
-      "1.0.3"
+      "2.0.0"
     ],
     [
       "blaze-tools",
       "1.0.0"
+    ],
+    [
+      "boilerplate-generator",
+      "1.0.0-cordova1"
     ],
     [
       "callback-hook",
@@ -54,19 +58,27 @@
     ],
     [
       "coffeescript",
-      "1.0.2"
+      "1.0.2-rc1"
+    ],
+    [
+      "ddp",
+      "1.0.8"
     ],
     [
       "deps",
-      "1.0.1"
+      "1.0.2"
     ],
     [
       "ejson",
-      "1.0.0"
+      "1.0.1"
+    ],
+    [
+      "fastclick",
+      "1.0.0-cordova1"
     ],
     [
       "follower-livedata",
-      "1.0.0"
+      "1.0.1"
     ],
     [
       "geojson-utils",
@@ -78,7 +90,11 @@
     ],
     [
       "htmljs",
-      "1.0.0"
+      "1.0.0-cordova1"
+    ],
+    [
+      "http",
+      "1.0.5-rc0"
     ],
     [
       "id-map",
@@ -93,36 +109,40 @@
       "1.0.0"
     ],
     [
-      "livedata",
-      "1.0.7"
-    ],
-    [
       "localstorage",
       "1.0.0"
     ],
     [
       "logging",
-      "1.0.2"
+      "1.0.2-cordova2"
     ],
     [
       "meteor",
-      "1.0.2"
+      "1.1.0-rc1"
+    ],
+    [
+      "meteor-platform",
+      "1.1.0-rc0"
     ],
     [
       "minifiers",
-      "1.0.2"
+      "1.1.0-rc0"
     ],
     [
       "minimongo",
-      "1.0.1"
+      "1.0.3-rc1"
     ],
     [
-      "mongo-livedata",
-      "1.0.3"
+      "mobile-status-bar",
+      "1.0.0-cordova2"
+    ],
+    [
+      "mongo",
+      "1.0.4-rc1"
     ],
     [
       "observe-sequence",
-      "1.0.1"
+      "1.0.2"
     ],
     [
       "ordered-dict",
@@ -134,11 +154,15 @@
     ],
     [
       "reactive-dict",
-      "1.0.0"
+      "1.0.2-rc0"
+    ],
+    [
+      "reactive-var",
+      "1.0.1"
     ],
     [
       "reload",
-      "1.0.0"
+      "1.1.0-rc1"
     ],
     [
       "retry",
@@ -146,46 +170,58 @@
     ],
     [
       "routepolicy",
-      "1.0.0"
+      "1.0.0-cordova1"
     ],
     [
       "service-configuration",
-      "1.0.0"
-    ],
-    [
-      "session",
-      "1.0.0"
-    ],
-    [
-      "spacebars",
-      "1.0.0"
-    ],
-    [
-      "spacebars-compiler",
       "1.0.1"
     ],
     [
+      "session",
+      "1.0.1"
+    ],
+    [
+      "spacebars",
+      "1.0.1"
+    ],
+    [
+      "spacebars-compiler",
+      "1.0.2"
+    ],
+    [
       "standard-app-packages",
-      "1.0.0"
+      "1.0.1"
     ],
     [
       "templating",
-      "1.0.4"
+      "1.0.6-rc1"
+    ],
+    [
+      "tracker",
+      "1.0.2"
     ],
     [
       "ui",
-      "1.0.0"
+      "1.0.1"
     ],
     [
       "underscore",
       "1.0.0"
     ],
     [
+      "url",
+      "1.0.0-rc0"
+    ],
+    [
       "webapp",
-      "1.0.2"
+      "1.1.1-rc1"
+    ],
+    [
+      "webapp-hashing",
+      "1.0.0-cordova1"
     ]
   ],
   "pluginDependencies": [],
-  "toolVersion": "meteor-tool@1.0.26",
+  "toolVersion": "meteor-tool@1.0.28-rc1",
   "format": "1.0"
 }
