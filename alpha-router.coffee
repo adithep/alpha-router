@@ -2,6 +2,7 @@ ses.current_path_n = new Blaze.ReactiveVar()
 ses.current_path_arr = new Blaze.ReactiveVar()
 ses.current_path_h = new Blaze.ReactiveVar("Home")
 ses.path = new ReactiveDict()
+ses.state_glyph = {}
 ses.tem = {}
 
 
@@ -24,8 +25,23 @@ Tracker.autorun ->
   if Session.equals("subscription", true)
     root = DATA.findOne(_s_n: "apps")
     if root and root.app_dis
+      ses.app = new Blaze.ReactiveVar(root)
       document.title = root.app_dis
     return
+
+Tracker.autorun ->
+  DATA.find(_s_n: "form_state_glyph").observe
+
+    added: (doc) ->
+
+      ses.state_glyph[doc.form_state_set_n] = new Blaze.ReactiveVar(doc)
+
+    changed: (ndoc) ->
+      ses.state_glyph[doc.form_state_set_n].set(ndoc)
+
+    removed: (doc) ->
+
+      delete ses.state_glyph[doc.form_state_set_n]
 
 Tracker.autorun ->
   DATA.find(_s_n: "templates").observe
