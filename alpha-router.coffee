@@ -1,5 +1,6 @@
 ses.current_path_n = new Blaze.ReactiveVar()
 ses.current_path_arr = new Blaze.ReactiveVar()
+ses.current_path_h = new Blaze.ReactiveVar("Home")
 ses.path = new ReactiveDict()
 ses.tem = {}
 
@@ -120,11 +121,22 @@ Tracker.autorun ->
     ses.current_path_n.set(a)
     return
 
+hide_drop = (dvis) ->
+  if dvis.dvis
+    dvis.dvis.set('hide')
+    if dvis.ctl and dvis.ctl.ptl
+      hide_drop(dvis.ctl.ptl)
 
 
 UI.body.events
   'click a[href^="/"]': (e, t) ->
     e.preventDefault()
+    if @dtl.doc.path_dis
+      ses.current_path_h.set(@dtl.doc.path_dis)
+    else
+      ses.current_path_h.set("Home")
+    if @ctl.ptl
+      hide_drop(@ctl.ptl)
     a = e.currentTarget.pathname
     b = Mu.remove_first_last_slash(a)
     b = "root/#{b}"
