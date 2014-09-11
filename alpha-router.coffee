@@ -3,7 +3,8 @@ ses.current_path_arr = new Blaze.ReactiveVar()
 ses.current_path_h = new Blaze.ReactiveVar("Home")
 ses.path = new ReactiveDict()
 ses.state_glyph = {}
-ses.tem = {}
+ses.templates = {}
+ses.tem_looks = {}
 
 
 Tracker.autorun ->
@@ -34,28 +35,37 @@ Tracker.autorun ->
 
     added: (doc) ->
 
-      ses.state_glyph[doc.form_state_set_n] = new Blaze.ReactiveVar(doc)
+      if ses.state_glyph[doc.form_state_set_n]
+        ses.state_glyph[doc.form_state_set_n].set(doc)
+      else
+        ses.state_glyph[doc.form_state_set_n] = new Blaze.ReactiveVar(doc)
 
     changed: (ndoc) ->
       ses.state_glyph[doc.form_state_set_n].set(ndoc)
 
     removed: (doc) ->
 
-      delete ses.state_glyph[doc.form_state_set_n]
+      ses.state_glyph[doc.form_state_set_n].set(false)
 
 Tracker.autorun ->
-  DATA.find(_s_n: "templates").observe
+  if Session.equals("subscription", true)
+    app = DATA.findOne(_s_n: "apps")
+    if app
+      frame = app.tem_frame or 'alpha'
+      DATA.find(_s_n: {$in: ["templates", "tem_looks"]}, tem_frame: frame).observe
 
-    added: (doc) ->
+        added: (doc) ->
+          if ses[doc._s_n][doc.tem_ty_n]
+            ses[doc._s_n][doc.tem_ty_n].set(doc)
+          else
+            ses[doc._s_n][doc.tem_ty_n] = new Blaze.ReactiveVar(doc)
 
-      ses.tem[doc.tem_ty_n] = new Blaze.ReactiveVar(doc)
+        changed: (ndoc) ->
+          ses[doc._s_n][doc.tem_ty_n].set(ndoc)
 
-    changed: (ndoc) ->
-      ses.tem[doc.tem_ty_n].set(ndoc)
+        removed: (doc) ->
 
-    removed: (doc) ->
-
-      delete ses.tem[doc.tem_ty_n]
+          ses[doc._s_n][doc.tem_ty_n].set(false)
 
 
 matrix = (str, pparr) ->
